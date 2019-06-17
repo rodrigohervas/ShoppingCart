@@ -1,0 +1,126 @@
+﻿
+@{
+    ViewData["Title"] = "Controller";
+}
+
+<br />
+<h2>Session State Management:</h2>
+<br />
+
+<h4>Intro to Session State Management and Caching:</h4>
+<br />
+
+<p>
+    In this example of a basic shopping cart in ASP.NET Core 2 we are going to use Caching and a <code>Session</code> object. Caching makes a copy of the data that we can return
+    much faster than from the original response. Since HTTP is a stateless protocol, and no user information can be stored in its requests, we'll use a Session object to maintain
+    the user state. The Session state is a scenario where the user data is stored by the app in order to be able to persist this data between requests from a client. 
+    This session data is backed by a cache and (with <code>IMemoryCache</code> caching) stored in the web server memory. In production apps, this information should be stored 
+    in a database. In this app, we'll be using the <code>IMemoryCache </code> interface to store the user data in the memory of the web server.
+</p>
+<p>
+    This is a very simple approach. For apps than run on a server farm, or on different servers, it is safer to use sticky sessions to insure same-server re-routing for subsequent
+    requests from the same client, or better yet, a more advanced caching strategy would be to use distributed caching, where the cache is stored in a storage solution 
+    (SQL Server, Redis, etc.), and shared by multiple servers. There's also distributed caching in-memory, but would only be suitable for development purposes, not in production.
+</p>
+<p>
+    To make things simpler, in this example we have not used database storage of the shopping cart information. As mentioned above, database storage of the information
+    is recommended, as cache storage is considered ephemeral, and stored data can be persisted into future requests by the same client.
+</p>
+
+<h6><u><code>Startup</code> class</u>:</h6>
+<p>
+    Let's start by adding caching and session configuration in the <code>Startup.ConfigureServices()</code> method. For caching we add <code>services.AddMemoryCache()</code>,
+    and for the Session we call <code>services.AddSession()</code>. Then, we will enable session state management in <code>Startup.Configure()</code> with
+    <code>app.UseSession()</code>. After configuring the session state we have the <code>HttpContext.Session</code> object available to store and retrieve data in-memory
+    in between requests from the same client. The <code>HttpContext.Session</code> object is an implementation of <code>ISession</code>. Note also, that middleware ordering is important, so be careful to call <code>app.UseSession()</code> always before calling
+    <code>app.UseMvc()</code>. Now the session management system is in place, and all we have to do is use it to store and retrieve the user data.
+</p>
+
+<h6><u>Model classes (<code>Cart</code>, <code>Product</code>, <code>Customer</code>)</u>:</h6>
+<p>
+    Now we are ready to implement the model objects, adding the properties that we want to use: <code>Cart</code>, <code>Product</code>, <code>Customer</code>.
+</p>
+
+<h6><u><code>SessionHelper</code> class</u>:</h6>
+<p>
+    To make things easier to work with the <code>HttpContext.Session</code> object to retrieve and store session data we can implement a helper class, in thi8s app's case
+    <code>SessionHelper</code>, that will implement two methods from the <code>ISession</code> interface extension methods: <code>SetString(ISession, String, String)</code>
+    and <code>GetString(ISession, String)</code>:
+    
+    <pre><code>           
+    public static void Set<T>(this ISession session, string key, T value)                    
+    {
+        session.SetString(key, JsonConvert.SerializeObject(value));
+    } 
+    </code></pre>
+    
+    <pre><code>
+    public static T Get<T>(this ISession session, string key)
+    {
+        var value = session.GetString(key);
+        return value == null ? default(T) : JsonConvert.DeserializeObject<T>(value);
+    }
+    </code></pre>
+</p>
+
+<h4>Controller access to Session State:</h4>
+<br />
+
+<p>
+    In any controller class we can now call this <code>SessionHelper</code> object to access the session state as follows:
+
+    <pre><code>
+    SessionHelper.Set<Cart>(HttpContext.Session, "cart", shopCart);
+    </code></pre>
+
+    <pre><code>
+    var shoppingCart = SessionHelper.Get<Cart>(HttpContext.Session, "cart");
+    </code></pre>
+</p>
+
+<h4>Views access to Session State:</h4>
+<br />
+
+<p>
+    From any view (in this app, in the <code>_Layout</code> view), it is easy to use our <code>SessionHelper</code> class to access the session data: 
+    <code>@@using ShoppingCart.UI.Session;</code>.
+</p>
+
+<p>
+    In this app we have implemented a <code>ViewComponent</code> as the Shopping Cart: <code>ShoppingCartViewComponent</code>. This <code>ViewComponent</code> is composed of two files: 
+    <ol>
+        <li>
+            The controller of the <code>ViewComponent</code>: <code>ShoppingCartViewComponent</code>.
+        </li>
+        <li>
+            The view that we use to visualize the cart: it is a <code>view</code> stored in <code>Views/Shared/Components/ShoppingCart/Default.cshtml</code>. 
+            The placement of this <code>Default</code> view in this folder with this name is important.
+        </li>
+    </ol>
+</p>
+<p>
+    Once the <code>SessionHelper</code> is added to the view, we can use it to load the user data that we stored previously in the <code>Session</code> object into the view:
+
+    <pre>
+    <code>
+    @@{
+        var cart = SessionHelper.Get<Cart>(Context.Session, "cart");
+    }
+    </code>
+    </pre>
+
+    Then we add the <code>ShoppingCartViewComponent</code> to the view using a <code>TagHelper</code> and pass the user data loaded into the view (<code>var cart</code>) 
+    as a parameter (<code>cart=@@cart</code>) for the <code>ShoppingCartViewComponent</code> to show it:
+    
+    <pre>
+    <code>
+    &lt;vc:shopping-cart class="col-3" cart=@@cart&gt;&lt;/vc:shopping-cart&gt;
+    </code>
+    </pre>
+</p>
+
+
+
+    
+    
+

@@ -1,0 +1,55 @@
+﻿@using ShoppingCart.UI.Session;
+
+@model Cart;
+
+@{
+    ViewData["Title"] = "Saved Shopping Cart";
+
+    var cart = SessionHelper.Get<Cart>(Context.Session, "cart");
+}
+
+<h4>Your Shopping Cart contains the following products:</h4>
+<br />
+
+<p><b>Cart Id:</b> @Model.Id</p>
+<p><b>Customer: </b> @Model.CustomerId - @Model.CustomerName</p>
+<p><b>Products: </b> </p>
+
+<table class="table table-hover">
+    <thead class="thead-light">
+        <tr>
+            <th scope="col">Id</th>
+            <th scope="col">Product</th>
+            <th scope="col" class="text-center">Price</th>
+            <th scope="col" class="text-center">Qty.</th>
+            <th class="text-center">Total Price</th>
+        </tr>
+    </thead>
+    <tbody>
+        @{ var totalPrice = 0.0M; }
+        @foreach (var product in Model.Products)
+        {
+            var productTotal = product.Price * product.Quantity;
+            totalPrice += productTotal;
+            <tr>
+                <th>@product.Id</th>
+                <td>@product.Name</td>
+                <td class="text-center">@product.Price</td>
+                <td class="text-center">@product.Quantity</td>
+                <td class="text-center">@productTotal</td>
+            </tr>
+        }
+        <tr>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <th class="text-center">@totalPrice</th>
+        </tr>
+
+    </tbody>
+</table>
+
+
+
+<p>The Shopping Cart Information was saved. You can add more products to your shopping cart <a asp-action="Index">here</a>.</p>

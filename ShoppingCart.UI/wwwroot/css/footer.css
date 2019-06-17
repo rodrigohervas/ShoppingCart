@@ -1,0 +1,18 @@
+﻿
+html, body {
+    height: 100%;
+    margin: 0;
+}
+
+body {
+    display: flex; /* Set the body as the Flex Container */
+    flex-direction: column; /* Define the order of the flex contents as vertical (column) */
+}
+
+.content-wrapper-top {
+    flex-grow: 1; /* Main content -all except footer- will grow to push footer to the bottom of page */
+}
+
+.footer-bottom {
+    flex-shrink: 0; /* footer will not shrink, keeping its size */
+}

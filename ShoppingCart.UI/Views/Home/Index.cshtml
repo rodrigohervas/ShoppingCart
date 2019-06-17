@@ -1,0 +1,58 @@
+﻿@using ShoppingCart.UI.Session;
+
+@model List<Product>
+
+@{
+    var cart = SessionHelper.Get<Cart>(Context.Session, "cart");
+    var cartshop = Context.Session.Get<Cart>("cart");
+ }
+
+
+<h2>> Tech & Stationary:</h2>
+<br />
+
+
+<table class="table table-hover table-responsive">
+    <thead class="thead-light">
+        <tr>
+            <th scope="col">Ref #</th>
+            <th scope="col">Name</th>
+            <th scope="col">Description</th>
+            <th scope="col">Price</th>
+            <th scope="col">Available</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var product in Model)
+            {
+        <form method="post" asp-controller="Home" asp-action="AddProductToCart">
+            <tr>
+                <th>
+                    @product.Id
+                    <input type="hidden" name="Id" value="@product.Id" />
+                </th>
+                <td>
+                    @product.Name
+                    <input type="hidden" name="Name" value="@product.Name" />
+                </td>
+                <td>
+                    @product.Description
+                    <input type="hidden" name="Description" value="@product.Description" />
+                </td>
+                <td class="text-right">
+                    @product.Price
+                    <input type="hidden" name="Price" value="@product.Price" />
+                </td>
+                <td>
+                    <input class="text-center" type="text" name="Quantity" value="1" size="2" />
+                    <input type="hidden" name="Quantity" value="@product.Quantity" />
+                </td>
+                <td>
+                    <input class="btn btn-primary" type="submit" value="Add To Cart" />
+                </td>
+            </tr>
+        </form>
+                }
+    </tbody>
+</table>
