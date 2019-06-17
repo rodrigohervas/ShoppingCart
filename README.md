@@ -1,4 +1,4 @@
-##Intro to Session State Management and Caching in ASP.NET Core 2:##
+## Intro to Session State Management and Caching in ASP.NET Core 2:
 
 In this example of a basic shopping cart in ASP.NET Core 2 we are going to use **Caching** and a **Session** object.
  
