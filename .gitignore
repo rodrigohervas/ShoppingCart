@@ -259,3 +259,4 @@ paket-files/
 # Python Tools for Visual Studio (PTVS)
 __pycache__/
 *.pyc
+/ShoppingCart.UI/Properties/PublishProfiles/ShoppingCartCore2 - Web Deploy.pubxml
